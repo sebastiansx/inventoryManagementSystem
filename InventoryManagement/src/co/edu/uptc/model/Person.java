@@ -5,8 +5,16 @@ public class Person {
     private String name;
     private String address;
     private String phone;
+    private String email;
 
     public Person() {
+    }
+
+    public Person(String name, String id, String phone, String email) {
+        this.name = name;
+        this.id = id;
+        this.phone = phone;
+        this.email = email;
     }
 
     public String getId() {
@@ -39,5 +47,17 @@ public class Person {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String showProfile(){
+        return "ID: " + id + "\nNombre: " + name + "\nDirección: " + address + "\nTeléfono: " + phone + "\nEmail: " + email;
     }
 }
