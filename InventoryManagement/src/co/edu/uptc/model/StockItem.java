@@ -1,4 +1,4 @@
-import co.edu.uptc.model;
+package co.edu.uptc.model;
 
 public class StockItem {
     private Product product;
