@@ -244,4 +244,64 @@ public String getInventorySummary() {
     return inventory.getInventorySummary();
 }
 
+    // Métodos puente para carrito y compras de cliente
+    public void addToCart(Client client, String productId, int quantity) {
+        client.addToCart(productId, quantity);
+    }
+
+    public void removeFromCart(Client client, String productId, int quantity) {
+        client.removeFromCart(productId, quantity);
+    }
+
+    public void clearCart(Client client) {
+        client.clearCart();
+    }
+
+    public Map<String, Integer> getCart(Client client) {
+        return client.getCart();
+    }
+
+    public List<Sale> getPurchaseHistory(Client client) {
+        return client.getPurchaseHistory();
+    }
+
+    public Client createClient(String name, String id) {
+        Client client = new Client();
+        client.setName(name);
+        client.setId(id);
+        client.setStore(this);
+        return client;
+    }
+
+    public String showCart(Client client) throws ProductNotFoundException {
+        StringBuilder sb = new StringBuilder();
+        sb.append("=== CARRITO DE COMPRAS ===\n");
+        double total = 0;
+        for (Map.Entry<String, Integer> entry : getCart(client).entrySet()) {
+            String productId = entry.getKey();
+            int quantity = entry.getValue();
+            Product product = inventory.getStockItem(productId).getProduct();
+            double subtotal = product.getPrice() * quantity;
+            sb.append(product.getName()).append(" x").append(quantity)
+              .append(" - Precio unitario: $").append(product.getPrice())
+              .append(" - Subtotal: $").append(subtotal).append("\n");
+            total += subtotal;
+        }
+        sb.append("Total: $").append(total);
+        return sb.toString();
+    }
+
+    public String showPurchaseHistory(Client client) {
+        StringBuilder sb = new StringBuilder();
+        var history = getPurchaseHistory(client);
+        if (history.isEmpty()) {
+            return "No hay compras registradas para este cliente.";
+        } else {
+            sb.append("=== HISTORIAL DE COMPRAS ===\n");
+            for (var sale : history) {
+                sb.append(sale.getReceiptInfo()).append("\n\n");
+            }
+            return sb.toString();
+        }
+    }
 }
