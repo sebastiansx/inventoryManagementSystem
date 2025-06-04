@@ -5,11 +5,17 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Unit tests for the Store class.
+ */
 public class StoreTest {
     private Store store;
     private User adminUser;
     private User normalUser;
 
+    /**
+     * Sets up the test environment before each test, creating users and a Store instance.
+     */
     @BeforeEach
     public void setUp() {
         store = new Store();
@@ -19,6 +25,9 @@ public class StoreTest {
         store.addUser(normalUser);
     }
 
+    /**
+     * Verifies that user authentication works correctly for valid and invalid users.
+     */
     @Test
     public void testAddUserAndAuthenticate() {
         assertTrue(store.authenticateUser("admin", "adminpass"));
@@ -27,6 +36,9 @@ public class StoreTest {
         assertFalse(store.authenticateUser("nouser", "nopass"));
     }
 
+    /**
+     * Verifies that the calculation of total sales is correct after registering a sale.
+     */
     @Test
     public void testGetTotalSales() throws Exception {
         Client client = new Client();
@@ -42,6 +54,9 @@ public class StoreTest {
         assertEquals(sale.getTotal(), store.getTotalSales());
     }
 
+    /**
+     * Verifies that the purchase history of a client is obtained correctly.
+     */
     @Test
     public void testGetClientHistory() throws Exception {
         Client client = new Client();

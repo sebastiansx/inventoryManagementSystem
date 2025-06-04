@@ -475,4 +475,13 @@ public String getInventorySummary() {
     public double getWallet(Client client) {
         return client.getWallet();
     }
+
+    /**
+     * Returns the User object for a given username/id, or null if not found.
+     * @param username the username or id
+     * @return the User object, or null if not found
+     */
+    public User getUserByUsername(String username) {
+        return users.get(username);
+    }
 }

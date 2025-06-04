@@ -16,7 +16,18 @@ public class Presenter {
     public Presenter() {
         store = new Store();
         view = new View();
+        preloadDefaultClients();
         start();
+    }
+
+    /**
+     * Preloads some default clients with id as username and a password.
+     */
+    private void preloadDefaultClients() {
+        // Example clients
+        store.addUser(new User("Juan Perez", "1001", "123456789", "juan@mail.com", "1001", "pass123", "client"));
+        store.addUser(new User("Maria Gomez", "1002", "987654321", "maria@mail.com", "1002", "maria456", "client"));
+        store.addUser(new User("Carlos Ruiz", "1003", "555555555", "carlos@mail.com", "1003", "carlos789", "client"));
     }
 
     /**
@@ -38,7 +49,7 @@ public class Presenter {
                     adminMenu();
                     break;
                 case 2:
-                    clientMenu();
+                    clientLogin();
                     break;
                 case 3:
                     view.showMessage("Gracias por usar la aplicación.");
@@ -98,13 +109,30 @@ public class Presenter {
     }
 
     /**
-     * Displays the client menu and handles client actions.
+     * Handles client login and, if successful, shows the client menu.
      */
-    private void clientMenu() {
-        String clientName = view.getString("Ingrese su nombre:");
-        String clientId = view.getString("Ingrese su cédula o ID:");
-        double wallet = view.getDouble("¿Cuánto dinero desea cargar a su cartera?:");
-        Client client = store.createClient(clientName, clientId, wallet);
+    private void clientLogin() {
+        String id = view.getString("Ingrese su cédula o ID:");
+        String password = view.getString("Ingrese su contraseña:");
+        boolean authenticated = store.authenticateUser(id, password);
+        if (authenticated) {
+            User user = store.getUserByUsername(id);
+            // Create a Client object from User data for the menu
+            Client client = new Client();
+            client.setName(user.getName());
+            client.setId(user.getId());
+            client.setWallet(0); // Or preload wallet if you want
+            client.setStore(store);
+            clientMenu(client);
+        } else {
+            view.showMessage("Credenciales incorrectas. Intente nuevamente.");
+        }
+    }
+
+    /**
+     * Displays the client menu and handles client actions for an authenticated client.
+     */
+    private void clientMenu(Client client) {
         boolean exit = false;
         while (!exit) {
             String menu = view.getString(
@@ -302,3 +330,6 @@ public class Presenter {
         view.showMessage("Cartera recargada exitosamente. Saldo actual: $" + store.getWallet(client));
     }
 }
+
+
+
