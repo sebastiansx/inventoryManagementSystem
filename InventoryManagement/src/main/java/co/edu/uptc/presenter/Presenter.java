@@ -1,6 +1,5 @@
 package co.edu.uptc.presenter;
 
-
 import co.edu.uptc.model.Store;
 import co.edu.uptc.model.ProductAlreadyExistsException;
 import co.edu.uptc.model.ProductNotFoundException;
@@ -11,20 +10,29 @@ import co.edu.uptc.model.Category;
 import co.edu.uptc.model.Client;
 import co.edu.uptc.model.Sale;
 
+/**
+ * Handles the main application logic, user interaction, and communication between the view and the model.
+ */
 public class Presenter {
     private Store store;
     private View view;
 
+    /**
+     * Initializes the Presenter, Store, and View, and starts the application.
+     */
     public Presenter() {
         store = new Store();
         view = new View();
         start();
     }
 
-    // Método principal para iniciar la app y mostrar menú principal
+    /**
+     * Main loop to display the main menu and handle user selection.
+     */
     private void start() {
         while (true) {
-            String welcome = view.getString("=== BIENVENIDO ===\n1. Ingresar como Administrador\n2. Ingresar como Cliente\n3. Salir\nSeleccione una opción:");
+            String welcome = view.getString(
+                "=== BIENVENIDO ===\n1. Ingresar como Administrador\n2. Ingresar como Cliente\n3. Salir\nSeleccione una opción:");
             int option;
             try {
                 option = Integer.parseInt(welcome);
@@ -48,11 +56,14 @@ public class Presenter {
         }
     }
 
-    // Menú para administrador con manejo de productos e inventario
+    /**
+     * Displays the administrator menu and handles admin actions.
+     */
     private void adminMenu() {
         boolean exit = false;
         while (!exit) {
-            String adminMenu = view.getString("=== MENÚ ADMINISTRADOR ===\n1. Agregar nuevo producto\n2. Eliminar producto\n3. Agregar stock a producto\n4. Remover stock de producto\n5. Ver resumen de inventario\n6. Volver al menú principal\nSeleccione una opción:");
+            String adminMenu = view.getString(
+                "=== MENÚ ADMINISTRADOR ===\n1. Agregar nuevo producto\n2. Eliminar producto\n3. Agregar stock a producto\n4. Remover stock de producto\n5. Ver resumen de inventario\n6. Volver al menú principal\nSeleccione una opción:");
             int option;
             try {
                 option = Integer.parseInt(adminMenu);
@@ -84,20 +95,23 @@ public class Presenter {
                         view.showMessage("Opción inválida, intente nuevamente.");
                 }
             } catch (ProductAlreadyExistsException e) {
-                view.showErrorMessage("Error: " + e.getMessage());
-            }catch(ProductNotFoundException e){
-                view.showErrorMessage("Error: " + e.getMessage());
-            }catch(InsufficientStockException e){
-                view.showErrorMessage("Error: " + e.getMessage());
+                view.showErrorMessage("Error el producto ya existe: " + e.getMessage());
+            } catch (ProductNotFoundException e) {
+                view.showErrorMessage("Error el producto no existe: " + e.getMessage());
+            } catch (InsufficientStockException e) {
+                view.showErrorMessage("Error el stock es insuficiente: " + e.getMessage());
             }
         }
     }
 
-    // Menú para cliente - ahora funcional
+    /**
+     * Displays the client menu and handles client actions.
+     */
     private void clientMenu() {
         String clientName = view.getString("Ingrese su nombre:");
         String clientId = view.getString("Ingrese su cédula o ID:");
-        Client client = store.createClient(clientName, clientId);
+        double wallet = view.getDouble("¿Cuánto dinero desea cargar a su cartera?:");
+        Client client = store.createClient(clientName, clientId, wallet);
         boolean exit = false;
         while (!exit) {
             String menu = view.getString(
@@ -108,7 +122,8 @@ public class Presenter {
                 "4. Ver carrito y total\n" +
                 "5. Realizar compra\n" +
                 "6. Ver historial de compras\n" +
-                "7. Volver al menú principal\n" +
+                "7. Recargar cartera\n" +
+                "8. Volver al menú principal\n" +
                 "Seleccione una opción:");
             int option;
             try {
@@ -138,6 +153,9 @@ public class Presenter {
                         view.showMessage(store.showPurchaseHistory(client));
                         break;
                     case 7:
+                        rechargeWallet(client);
+                        break;
+                    case 8:
                         exit = true;
                         break;
                     default:
@@ -149,14 +167,15 @@ public class Presenter {
         }
     }
 
-    // Métodos para manejar productos e inventario:
-
+    /**
+     * Adds a new product to the inventory.
+     * @throws ProductAlreadyExistsException if the product already exists
+     */
     private void addProduct() throws ProductAlreadyExistsException {
         String id = view.getString("Ingrese ID del producto:");
         String name = view.getString("Ingrese nombre del producto:");
         String description = view.getString("Ingrese descripción:");
         double price = view.getDouble("Ingrese precio:");
-        // Mostrar las categorías disponibles (enum)
         view.showMessage("Categorías disponibles:");
         for (Category cat : Category.values()) {
             view.showMessage("- " + cat);
@@ -170,18 +189,25 @@ public class Presenter {
             category = Category.ROPA;
         }
         int quantity = view.getInt("Ingrese cantidad inicial:");
-
         Product product = new Product(id, name, description, price, category);
         store.addNewProduct(product, quantity);
         view.showMessage("Producto agregado exitosamente.");
     }
 
+    /**
+     * Removes a product from the inventory.
+     * @throws ProductNotFoundException if the product is not found
+     */
     private void removeProduct() throws ProductNotFoundException {
         String id = view.getString("Ingrese ID del producto a eliminar:");
         store.removeProduct(id);
         view.showMessage("Producto eliminado correctamente.");
     }
 
+    /**
+     * Adds stock to an existing product.
+     * @throws ProductNotFoundException if the product is not found
+     */
     private void addStock() throws ProductNotFoundException {
         String id = view.getString("Ingrese ID del producto para agregar stock:");
         int amount = view.getInt("Ingrese cantidad a agregar:");
@@ -189,6 +215,11 @@ public class Presenter {
         view.showMessage("Stock agregado correctamente.");
     }
 
+    /**
+     * Removes stock from an existing product.
+     * @throws ProductNotFoundException if the product is not found
+     * @throws InsufficientStockException if there is not enough stock
+     */
     private void removeStock() throws ProductNotFoundException, InsufficientStockException {
         String id = view.getString("Ingrese ID del producto para remover stock:");
         int amount = view.getInt("Ingrese cantidad a remover:");
@@ -196,6 +227,9 @@ public class Presenter {
         view.showMessage("Stock removido correctamente.");
     }
 
+    /**
+     * Shows a summary of the inventory.
+     */
     private void showInventory() {
         String summary = store.getInventorySummary();
         if (summary.isEmpty()) {
@@ -205,7 +239,11 @@ public class Presenter {
         }
     }
 
-    // Métodos auxiliares para el menú de cliente
+    /**
+     * Adds a product to the client's cart.
+     * @param client the client
+     * @throws ProductNotFoundException if the product is not found
+     */
     private void addToCart(Client client) throws ProductNotFoundException {
         String productId = view.getString("Ingrese el ID del producto a agregar al carrito:");
         int quantity = view.getInt("Ingrese la cantidad:");
@@ -214,10 +252,18 @@ public class Presenter {
             view.showMessage("No hay suficiente stock disponible. Stock actual: " + stock);
             return;
         }
-        store.addToCart(client, productId, quantity);
-        view.showMessage("Producto agregado al carrito.");
+        try {
+            store.addToCart(client, productId, quantity);
+            view.showMessage("Producto agregado al carrito.");
+        } catch (IllegalArgumentException e) {
+            view.showMessage(e.getMessage());
+        }
     }
 
+    /**
+     * Removes a product from the client's cart.
+     * @param client the client
+     */
     private void removeFromCart(Client client) {
         String productId = view.getString("Ingrese el ID del producto a remover del carrito:");
         int quantity = view.getInt("Ingrese la cantidad a remover:");
@@ -225,14 +271,41 @@ public class Presenter {
         view.showMessage("Producto removido del carrito.");
     }
 
+    /**
+     * Processes the purchase for the client, deducts the wallet, and shows the receipt.
+     * @param client the client
+     * @throws ProductNotFoundException if a product is not found
+     * @throws InsufficientStockException if there is not enough stock
+     */
     private void processPurchase(Client client) throws ProductNotFoundException, InsufficientStockException {
         if (store.getCart(client).isEmpty()) {
             view.showMessage("El carrito está vacío. No se puede procesar la compra.");
             return;
         }
+        double total = store.calculateClientCartTotal(client);
+        if (store.getWallet(client) < total) {
+            view.showMessage("No tiene suficiente dinero en la cartera para realizar la compra. Total: $" + total + ", Cartera: $" + store.getWallet(client));
+            return;
+        }
+        store.subtractFromWallet(client, total);
         Sale sale = store.processSale(client);
-        view.showMessage("Compra realizada con éxito.\n\n" + sale.getReceiptInfo());
+        view.showMessage("Compra realizada con éxito. Se descontó $" + total + " de su cartera.\n\n" + sale.getReceiptInfo());
+        if (store.getWallet(client) < 1000) {
+            view.showMessage("Advertencia: Su saldo en la cartera es bajo ($" + store.getWallet(client) + ").");
+        }
     }
 
-    // Puedes agregar más métodos para manejo de StockItem o Product según necesites
+    /**
+     * Allows the client to recharge their wallet.
+     * @param client the client
+     */
+    private void rechargeWallet(Client client) {
+        double amount = view.getDouble("¿Cuánto dinero desea agregar a su cartera?:");
+        if (amount <= 0) {
+            view.showMessage("Debe ingresar un monto positivo.");
+            return;
+        }
+        store.rechargeWallet(client, amount);
+        view.showMessage("Cartera recargada exitosamente. Saldo actual: $" + store.getWallet(client));
+    }
 }

@@ -5,6 +5,9 @@ import java.util.Map;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Represents a store that manages inventory, users, sales, and client operations.
+ */
 public class Store {
     private String name;
     private String address;
@@ -14,6 +17,9 @@ public class Store {
     private Map<String, User> users;
     private List<Sale> sales;
 
+    /**
+     * Constructs a new Store and preloads products.
+     */
     public Store() {
          this.inventory = new Inventory(); 
          preloadProducts();
@@ -21,47 +27,95 @@ public class Store {
         this.sales = new ArrayList<>();
     }
 
+    /**
+     * Gets the store's name.
+     * @return the name
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * Sets the store's name.
+     * @param name the new name
+     */
     public void setName(String name) {
         this.name = name;
     }
 
+    /**
+     * Gets the store's address.
+     * @return the address
+     */
     public String getAddress() {
         return address;
     }
 
+    /**
+     * Sets the store's address.
+     * @param address the new address
+     */
     public void setAddress(String address) {
         this.address = address;
     }
 
+    /**
+     * Gets the store's city.
+     * @return the city
+     */
     public String getCity() {
         return city;
     }
 
+    /**
+     * Sets the store's city.
+     * @param city the new city
+     */
     public void setCity(String city) {
         this.city = city;
     }
 
+    /**
+     * Gets the store's phone number.
+     * @return the phone number
+     */
     public String getPhone() {
         return phone;
     }
 
+    /**
+     * Sets the store's phone number.
+     * @param phone the new phone number
+     */
     public void setPhone(String phone) {
         this.phone = phone;
     }
 
+    /**
+     * Adds a user to the store's user map.
+     * @param user the user to add
+     */
     public void addUser(User user) {
         users.put(user.getUsername(), user);
     }
 
+    /**
+     * Authenticates a user by username and password.
+     * @param username the username
+     * @param password the password
+     * @return true if authentication is successful, false otherwise
+     */
     public boolean authenticateUser(String username, String password) {
         User user = users.get(username);
         return user != null && user.authenticate(username, password);
     }
 
+    /**
+     * Calculates the total value of the client's cart.
+     * @param client the client
+     * @return the total value
+     * @throws ProductNotFoundException if a product is not found
+     */
     public double calculateClientCartTotal(Client client) throws ProductNotFoundException {
         double total = 0;
         Map<String, Integer> cart = client.getCart();
@@ -80,6 +134,13 @@ public class Store {
         return total;
     }
 
+    /**
+     * Processes a sale for the client, updating inventory and purchase history.
+     * @param client the client
+     * @return the completed sale
+     * @throws InsufficientStockException if there is not enough stock
+     * @throws ProductNotFoundException if a product is not found
+     */
     public Sale processSale(Client client) throws InsufficientStockException, ProductNotFoundException {
         Map<String, Integer> cart = client.getCart();
         Sale sale = new Sale(generateSaleId(), client);
@@ -119,10 +180,19 @@ public class Store {
         return sale;
     }
 
+    /**
+     * Generates a unique sale ID.
+     * @return the sale ID
+     */
     private String generateSaleId() {
         return "SALE-" + System.currentTimeMillis();
     }
 
+    /**
+     * Gets the purchase history for a client by ID.
+     * @param clientId the client's ID
+     * @return a string with the client's purchase history
+     */
     public String getClientHistory(String clientId) {
         StringBuilder history = new StringBuilder();
         for (Sale sale : sales) {
@@ -133,18 +203,34 @@ public class Store {
         return history.toString();
     }
 
+    /**
+     * Gets the store's inventory.
+     * @return the inventory
+     */
     public Inventory getInventory() {
         return inventory;
     }
 
+    /**
+     * Sets the store's inventory.
+     * @param inventory the new inventory
+     */
     public void setInventory(Inventory inventory) {
         this.inventory = inventory;
     }
 
+    /**
+     * Gets the list of sales made by the store.
+     * @return the list of sales
+     */
     public List<Sale> getSales() {
         return sales;
     }
 
+    /**
+     * Gets the total value of all sales made by the store.
+     * @return the total sales value
+     */
     public double getTotalSales() {
         return sales.stream()
                 .mapToDouble(Sale::getTotal)
@@ -154,6 +240,9 @@ public class Store {
 
     
 
+    /**
+     * Preloads a set of products into the inventory for demonstration purposes.
+     */
     public void preloadProducts() {
         try {
             inventory.addNewProduct(new Product("001", "Camisa", "Camisa de algodón blanca", 45000.0, Category.ROPA),
@@ -245,34 +334,82 @@ public String getInventorySummary() {
 }
 
     // Métodos puente para carrito y compras de cliente
-    public void addToCart(Client client, String productId, int quantity) {
+    /**
+     * Adds a product and quantity to the client's cart, validating wallet balance.
+     * @param client the client
+     * @param productId the product ID
+     * @param quantity the quantity to add
+     * @throws ProductNotFoundException if the product is not found
+     * @throws IllegalArgumentException if the wallet balance is insufficient
+     */
+    public void addToCart(Client client, String productId, int quantity) throws ProductNotFoundException {
+        double currentTotal = calculateClientCartTotal(client);
+        Product product = inventory.getStockItem(productId).getProduct();
+        double addSubtotal = product.getPrice() * quantity;
+        if (currentTotal + addSubtotal > client.getWallet()) {
+            throw new IllegalArgumentException("No tiene suficiente dinero en la cartera para agregar este producto al carrito.");
+        }
         client.addToCart(productId, quantity);
     }
 
+    /**
+     * Removes a specific quantity of a product from the client's cart.
+     * @param client the client
+     * @param productId the product ID
+     * @param quantity the quantity to remove
+     */
     public void removeFromCart(Client client, String productId, int quantity) {
         client.removeFromCart(productId, quantity);
     }
 
+    /**
+     * Clears the client's cart.
+     * @param client the client
+     */
     public void clearCart(Client client) {
         client.clearCart();
     }
 
+    /**
+     * Gets the cart of the client.
+     * @param client the client
+     * @return a map of product IDs to quantities
+     */
     public Map<String, Integer> getCart(Client client) {
         return client.getCart();
     }
 
+    /**
+     * Gets the purchase history of the client.
+     * @param client the client
+     * @return a list of sales
+     */
     public List<Sale> getPurchaseHistory(Client client) {
         return client.getPurchaseHistory();
     }
 
-    public Client createClient(String name, String id) {
+    /**
+     * Creates a new client with the specified attributes.
+     * @param name the client's name
+     * @param id the client's ID
+     * @param wallet the initial wallet balance
+     * @return the created client
+     */
+    public Client createClient(String name, String id, double wallet) {
         Client client = new Client();
         client.setName(name);
         client.setId(id);
         client.setStore(this);
+        client.setWallet(wallet);
         return client;
     }
 
+    /**
+     * Shows the contents of the client's cart as a formatted string.
+     * @param client the client
+     * @return a string with cart details
+     * @throws ProductNotFoundException if a product is not found
+     */
     public String showCart(Client client) throws ProductNotFoundException {
         StringBuilder sb = new StringBuilder();
         sb.append("=== CARRITO DE COMPRAS ===\n");
@@ -291,6 +428,11 @@ public String getInventorySummary() {
         return sb.toString();
     }
 
+    /**
+     * Shows the purchase history of the client as a formatted string.
+     * @param client the client
+     * @return a string with purchase history
+     */
     public String showPurchaseHistory(Client client) {
         StringBuilder sb = new StringBuilder();
         var history = getPurchaseHistory(client);
@@ -303,5 +445,34 @@ public String getInventorySummary() {
             }
             return sb.toString();
         }
+    }
+
+    // Métodos puente para cartera
+    /**
+     * Adds money to the client's wallet.
+     * @param client the client
+     * @param amount the amount to add
+     */
+    public void rechargeWallet(Client client, double amount) {
+        client.addToWallet(amount);
+    }
+
+    /**
+     * Subtracts money from the client's wallet if possible.
+     * @param client the client
+     * @param amount the amount to subtract
+     * @return true if the amount was subtracted, false otherwise
+     */
+    public boolean subtractFromWallet(Client client, double amount) {
+        return client.subtractFromWallet(amount);
+    }
+
+    /**
+     * Gets the wallet balance of the client.
+     * @param client the client
+     * @return the wallet balance
+     */
+    public double getWallet(Client client) {
+        return client.getWallet();
     }
 }
