@@ -1,4 +1,4 @@
-package co.edu.uptc.model;
+package main.java.co.edu.uptc.model;
 import java.util.List;
 
 public interface ManageableInventory {

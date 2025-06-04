@@ -1,4 +1,4 @@
-package co.edu.uptc.view;
+package main.java.co.edu.uptc.view;
 
 import javax.swing.JOptionPane;
 
