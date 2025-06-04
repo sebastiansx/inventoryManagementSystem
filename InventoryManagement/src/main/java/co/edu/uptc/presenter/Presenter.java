@@ -1,14 +1,7 @@
 package co.edu.uptc.presenter;
 
-import co.edu.uptc.model.Store;
-import co.edu.uptc.model.ProductAlreadyExistsException;
-import co.edu.uptc.model.ProductNotFoundException;
-import co.edu.uptc.model.InsufficientStockException;
+import co.edu.uptc.model.*;
 import co.edu.uptc.view.View;
-import co.edu.uptc.model.Product;
-import co.edu.uptc.model.Category;
-import co.edu.uptc.model.Client;
-import co.edu.uptc.model.Sale;
 
 /**
  * Handles the main application logic, user interaction, and communication between the view and the model.
