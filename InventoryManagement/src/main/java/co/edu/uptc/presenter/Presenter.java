@@ -30,6 +30,7 @@ public class Presenter {
         store.addUser(new User("Carlos Ruiz", "1003", "555555555", "carlos@mail.com", "1003", "carlos789", "client"));
     }
 
+
     /**
      * Main loop to display the main menu and handle user selection.
      */
@@ -49,7 +50,7 @@ public class Presenter {
                     adminMenu();
                     break;
                 case 2:
-                    clientLogin();
+                    clientMenu();
                     break;
                 case 3:
                     view.showMessage("Gracias por usar la aplicación.");
@@ -109,30 +110,13 @@ public class Presenter {
     }
 
     /**
-     * Handles client login and, if successful, shows the client menu.
+     * Displays the client menu and handles client actions.
      */
-    private void clientLogin() {
-        String id = view.getString("Ingrese su cédula o ID:");
-        String password = view.getString("Ingrese su contraseña:");
-        boolean authenticated = store.authenticateUser(id, password);
-        if (authenticated) {
-            User user = store.getUserByUsername(id);
-            // Create a Client object from User data for the menu
-            Client client = new Client();
-            client.setName(user.getName());
-            client.setId(user.getId());
-            client.setWallet(0); // Or preload wallet if you want
-            client.setStore(store);
-            clientMenu(client);
-        } else {
-            view.showMessage("Credenciales incorrectas. Intente nuevamente.");
-        }
-    }
-
-    /**
-     * Displays the client menu and handles client actions for an authenticated client.
-     */
-    private void clientMenu(Client client) {
+    private void clientMenu() {
+        String clientName = view.getString("Ingrese su nombre:");
+        String clientId = view.getString("Ingrese su cédula o ID:");
+        double wallet = view.getDouble("¿Cuánto dinero desea cargar a su cartera?:");
+        Client client = store.createClient(clientName, clientId, wallet);
         boolean exit = false;
         while (!exit) {
             String menu = view.getString(
@@ -330,6 +314,5 @@ public class Presenter {
         view.showMessage("Cartera recargada exitosamente. Saldo actual: $" + store.getWallet(client));
     }
 }
-
 
 
