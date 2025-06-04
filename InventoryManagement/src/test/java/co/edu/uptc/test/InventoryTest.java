@@ -12,7 +12,7 @@ public class InventoryTest {
 
     @BeforeEach
     public void setUp() {
-        inventory = new Inventory(new HashMap<>());
+        inventory = new Inventory();
         product = new Product("001", "Camisa", "Camisa blanca", 10000.0, Category.ROPA);
     }
 

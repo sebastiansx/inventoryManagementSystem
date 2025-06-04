@@ -15,7 +15,8 @@ public class Store {
     private List<Sale> sales;
 
     public Store() {
-        this.inventory = new Inventory(new HashMap<>());
+         this.inventory = new Inventory(); 
+         preloadProducts();
         this.users = new HashMap<>();
         this.sales = new ArrayList<>();
     }
@@ -149,6 +150,7 @@ public class Store {
                 .mapToDouble(Sale::getTotal)
                 .sum();
     }
+    
 
     
 
@@ -178,4 +180,68 @@ public class Store {
             throw new RuntimeException("Error al precargar productos", e);
         }
     }
+/**
+ * Adds a new product to the inventory with the specified quantity.
+ *
+ * @param product the product to be added
+ * @param quantity the initial quantity of the product
+ * @throws ProductAlreadyExistsException if the product already exists in the inventory
+ */
+public void addNewProduct(Product product, int quantity) throws ProductAlreadyExistsException {
+    inventory.addNewProduct(product, quantity);
+}
+
+/**
+ * Removes a product from the inventory by its product ID.
+ *
+ * @param productId the ID of the product to be removed
+ * @throws ProductNotFoundException if the product is not found in the inventory
+ */
+public void removeProduct(String productId) throws ProductNotFoundException {
+    inventory.removeProduct(productId);
+}
+
+/**
+ * Adds stock to an existing product in the inventory.
+ *
+ * @param productId the ID of the product to add stock to
+ * @param amount the amount of stock to add
+ * @throws ProductNotFoundException if the product is not found in the inventory
+ */
+public void addStock(String productId, int amount) throws ProductNotFoundException {
+    inventory.addStock(productId, amount);
+}
+
+/**
+ * Removes stock from an existing product in the inventory.
+ *
+ * @param productId the ID of the product to remove stock from
+ * @param amount the amount of stock to remove
+ * @throws ProductNotFoundException if the product is not found in the inventory
+ * @throws InsufficientStockException if there is not enough stock to remove the specified amount
+ */
+public void removeStock(String productId, int amount) throws ProductNotFoundException, InsufficientStockException {
+    inventory.removeStock(productId, amount);
+}
+
+/**
+ * Retrieves the current stock quantity of a product.
+ *
+ * @param productId the ID of the product to check stock for
+ * @return the current stock quantity
+ * @throws ProductNotFoundException if the product is not found in the inventory
+ */
+public int getStock(String productId) throws ProductNotFoundException {
+    return inventory.getStock(productId);
+}
+
+/**
+ * Returns a summary of all products and their stock levels in the inventory.
+ *
+ * @return a string representing the inventory summary
+ */
+public String getInventorySummary() {
+    return inventory.getInventorySummary();
+}
+
 }
