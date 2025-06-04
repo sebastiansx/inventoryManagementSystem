@@ -1,6 +1,6 @@
 package co.edu.uptc.model;
 
-public class Person {
+public abstract class Person {
     private String id;
     private String name;
     private String address;
@@ -57,7 +57,5 @@ public class Person {
         this.email = email;
     }
 
-    public String showProfile(){
-        return "ID: " + id + "\nNombre: " + name + "\nDirección: " + address + "\nTeléfono: " + phone + "\nEmail: " + email;
-    }
+    public abstract String mostrarPerfil();
 }

@@ -26,8 +26,6 @@ public class Inventory implements ManageableInventory {
 
     @Override
     public List<StockItem> listInventory() {
-        // TODO Auto-generated method stub
-
         return new ArrayList<>(stockMap.values());
     }
 
@@ -51,13 +49,21 @@ public class Inventory implements ManageableInventory {
 
     public void removeStock(String productId, int amount)
         throws ProductNotFoundException, InsufficientStockException {
+            StockItem item = stockMap.get(productId);
+            if (item == null) {
+                throw new ProductNotFoundException("No se encontró el producto con ID " + productId + " en el inventario.");
+            }
 
+            item.removeQuantity(amount);
+        }
+
+    public StockItem getStockItem(String productId) throws ProductNotFoundException {
         StockItem item = stockMap.get(productId);
         if (item == null) {
             throw new ProductNotFoundException("No se encontró el producto con ID " + productId + " en el inventario.");
 
         }
-        item.removeQuantity(amount);
+        return item;
     }
 
     public int getStock(String idProduct) throws ProductNotFoundException {

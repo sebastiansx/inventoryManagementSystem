@@ -7,59 +7,58 @@ import java.util.Map;
 
 public class Client extends Person {
 
-   private Map<String, Integer> shopingCart;
-   private List<Sale> sales;//lista de Compras
-   private Sale sale;
+   private Map<String, Integer> cart;
+   private List<Sale> purchases;
+   private Sale currentSale;
    private Store store;
 
    public Client() {
     super();
-    shopingCart = new HashMap<>();
-    sales = new ArrayList<>();
-    sale = new Sale();
-    store = new Store();
+    cart = new HashMap<>();
+    purchases = new ArrayList<>();
    }
 
-   public void addToShopingCart(String productId, int quantity) {
-    shopingCart.put(productId, shopingCart.getOrDefault(productId, 0) + quantity);
+   public void addToCart(String productId, int quantity) {
+    cart.put(productId, cart.getOrDefault(productId, 0) + quantity);
    }
 
-   public void removeFromShopingCart(String productId) {
-    shopingCart.remove(productId);
+   public void removeFromCart(String productId) {
+    cart.remove(productId);
    }
 
-   public void removeFromShopingCart(String productId, int quantity) {
-    shopingCart.put(productId, shopingCart.getOrDefault(productId, 0) - quantity);
+   public void removeFromCart(String productId, int quantity) {
+    int currentQty = cart.getOrDefault(productId, 0);
+    if (currentQty <= quantity) {
+        cart.remove(productId);
+    } else {
+        cart.put(productId, currentQty - quantity);
+    }
    }
 
-   public void clearShopingCart() {
-    shopingCart.clear();
+   public void clearCart() {
+    cart.clear();
    }
 
-   public void addSale(Sale sale) {
-       if (sale != null) {
-           sales.add(sale);
-       }
+   public void addPurchase(Sale sale) {
+       purchases.add(sale);
    }
 
-   public List<Sale> getSales() {
-       return new ArrayList<>(sales);
+   public List<Sale> getPurchaseHistory() {
+       return purchases;
    }
 
-   public double getTotalSales() {
-       double total = 0;
-       for (Sale sale : sales) {
-         //  total += sale.getTotal();// metodo de Sale
-       }
-       return total;
+   public double getTotalPurchases() {
+       return purchases.stream()
+               .mapToDouble(Sale::getTotal)
+               .sum();
    }
 
    public Sale getCurrentSale() {
-       return sale;
+       return currentSale;
    }
 
    public void setCurrentSale(Sale sale) {
-       this.sale = sale;
+       this.currentSale = sale;
    }
 
    public Store getStore() {
@@ -70,10 +69,12 @@ public class Client extends Person {
        this.store = store;
    }
 
+   public Map<String, Integer> getCart() {
+       return cart;
+   }
 
-   
-
-   
-
-   
+   @Override
+   public String mostrarPerfil() {
+       return "Cliente: " + getName() + " | Email: " + getEmail() + " | Teléfono: " + getPhone();
+   }
 }

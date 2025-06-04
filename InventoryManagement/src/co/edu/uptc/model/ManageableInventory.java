@@ -5,5 +5,4 @@ public interface ManageableInventory {
     void addNewProduct(Product product, int quantity) throws ProductAlreadyExistsException;
     void removeProduct(String productId) throws ProductNotFoundException;
     List<StockItem> listInventory();
-    
 }

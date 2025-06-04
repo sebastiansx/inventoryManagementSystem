@@ -37,11 +37,15 @@ public class User extends Person {
     }
 
     public boolean authenticate(String inputUser, String inputPassword) {
-        return this.username.equals(inputUser) && this.password.equals(inputPassword);
+        return username.equals(inputUser) && password.equals(inputPassword);
+    }
+
+    public boolean isAdmin() {
+        return "admin".equalsIgnoreCase(role);
     }
 
     @Override
-    public String showProfile(){
-        return super.showProfile() + "\nUsuario: " + username + "\nRol: " + role;
+    public String mostrarPerfil() {
+        return "Usuario: " + getName() + " | Rol: " + role;
     }
 }

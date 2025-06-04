@@ -1,13 +1,23 @@
 package co.edu.uptc.model;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
+
 public class Store {
     private String name;
     private String address;
     private String city;
     private String phone;
     private Inventory inventory;
+    private Map<String, User> users;
+    private List<Sale> sales;
 
     public Store() {
+        this.inventory = new Inventory(new HashMap<>());
+        this.users = new HashMap<>();
+        this.sales = new ArrayList<>();
     }
 
     public String getName() {
@@ -42,22 +52,105 @@ public class Store {
         this.phone = phone;
     }
 
+    public void addUser(User user) {
+        users.put(user.getUsername(), user);
+    }
+
+    public boolean authenticateUser(String username, String password) {
+        User user = users.get(username);
+        return user != null && user.authenticate(username, password);
+    }
+
+    public double calculateClientCartTotal(Client client) throws ProductNotFoundException {
+        double total = 0;
+        Map<String, Integer> cart = client.getCart();
+        
+        for (Map.Entry<String, Integer> entry : cart.entrySet()) {
+            String productId = entry.getKey();
+            int quantity = entry.getValue();
+            
+            // Get the product from inventory
+            int stock = inventory.getStock(productId);
+            if (stock >= quantity) {
+                Product product = inventory.getStockItem(productId).getProduct();
+                total += product.getPrice() * quantity;
+            }
+        }
+        return total;
+    }
+
+    public Sale processSale(Client client) throws InsufficientStockException, ProductNotFoundException {
+        Map<String, Integer> cart = client.getCart();
+        Sale sale = new Sale(generateSaleId(), client);
+        
+        // First verify we have enough stock for everything
+        for (Map.Entry<String, Integer> entry : cart.entrySet()) {
+            String productId = entry.getKey();
+            int quantity = entry.getValue();
+            
+            if (inventory.getStock(productId) < quantity) {
+                throw new InsufficientStockException("Not enough stock for product: " + productId);
+            }
+        }
+        
+        // Process each item
+        for (Map.Entry<String, Integer> entry : cart.entrySet()) {
+            String productId = entry.getKey();
+            int quantity = entry.getValue();
+            
+            // Remove from inventory
+            inventory.removeStock(productId, quantity);
+            
+            // Add to sale
+            Product product = inventory.getStockItem(productId).getProduct();
+            sale.addItem(product, quantity);
+        }
+        
+        // Clear client's cart
+        client.clearCart();
+        
+        // Add sale to store history
+        sales.add(sale);
+        
+        // Add to client's purchase history
+        client.addPurchase(sale);
+        
+        return sale;
+    }
+
+    private String generateSaleId() {
+        return "SALE-" + System.currentTimeMillis();
+    }
+
     public String getClientHistory(String clientId) {
-        // Implementation pending
-        return "";
+        StringBuilder history = new StringBuilder();
+        for (Sale sale : sales) {
+            if (sale.getClient().getId().equals(clientId)) {
+                history.append(sale.getReceiptInfo()).append("\n\n");
+            }
+        }
+        return history.toString();
     }
 
-    public void registerSale(String saleId) {
-        // Implementation pending
+    public Inventory getInventory() {
+        return inventory;
     }
 
-    public void addProductN(String id, String name, String description, double price, String categoryN, int amount)
-            throws ProductAlreadyExistsException, IllegalArgumentException {
-        Category category = Category.valueOf(categoryN.toUpperCase());
-        Product productN = new Product(id, name, description, price, category);
-        inventory.addNewProduct(productN, amount);
-
+    public void setInventory(Inventory inventory) {
+        this.inventory = inventory;
     }
+
+    public List<Sale> getSales() {
+        return sales;
+    }
+
+    public double getTotalSales() {
+        return sales.stream()
+                .mapToDouble(Sale::getTotal)
+                .sum();
+    }
+
+    
 
     public void preloadProducts() {
         try {
@@ -83,13 +176,5 @@ public class Store {
                     new Product("010", "Pijama", "Pijama para mujer en algodón", 52000.0, Category.ROPA), 14);
         } catch (ProductAlreadyExistsException e) {
         }
-    }
-
-    public Inventory getInventory() {
-        return inventory;
-    }
-
-    public void setInventory(Inventory inventory) {
-        this.inventory = inventory;
     }
 }
