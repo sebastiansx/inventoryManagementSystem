@@ -175,6 +175,7 @@ public class Store {
             inventory.addNewProduct(
                     new Product("010", "Pijama", "Pijama para mujer en algodón", 52000.0, Category.ROPA), 14);
         } catch (ProductAlreadyExistsException e) {
+            throw new RuntimeException("Error al precargar productos", e);
         }
     }
 }
