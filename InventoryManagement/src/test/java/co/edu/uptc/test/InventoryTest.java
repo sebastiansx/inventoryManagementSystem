@@ -1,4 +1,4 @@
-package test.java.co.edu.uptc.test;
+package co.edu.uptc.test;
 
 import co.edu.uptc.model.*;
 import org.junit.jupiter.api.BeforeEach;

@@ -1,4 +1,4 @@
-package main.java.co.edu.uptc.model;
+package co.edu.uptc.model;
 
 public abstract class Person {
     private String id;

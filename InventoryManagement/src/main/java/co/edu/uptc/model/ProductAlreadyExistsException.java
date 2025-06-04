@@ -1,4 +1,4 @@
-package main.java.co.edu.uptc.model;
+package co.edu.uptc.model;
 
 public class ProductAlreadyExistsException extends  Exception {
       public ProductAlreadyExistsException(String message) {

@@ -1,4 +1,4 @@
-package main.java.co.edu.uptc.model;
+package co.edu.uptc.model;
 
 import java.util.HashMap;
 import java.util.Map;
